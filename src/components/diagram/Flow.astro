@@ -1,0 +1,17 @@
+---
+// Sequential flow. Arrow connectors are drawn by CSS between direct children
+// of .dgm__track, so authors just drop Steps/Groups in order.
+interface Props {
+  direction?: 'row' | 'col';
+  title?: string;
+}
+
+const { direction = 'row', title } = Astro.props;
+---
+
+<div class:list={['dgm', `dgm--${direction}`]}>
+  {title && <p class="dgm__title">{title}</p>}
+  <div class="dgm__track">
+    <slot />
+  </div>
+</div>

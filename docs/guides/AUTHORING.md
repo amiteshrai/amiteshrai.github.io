@@ -31,10 +31,43 @@ Most posts follow this arc. Scale each part to the topic; skip what a given post
 
 | Tier | Component | Teaches by | Hydration |
 |---|---|---|---|
-| Diagram | ` ```mermaid ` block | showing the model (build-time SVG, ~0 JS) | none |
+| Diagram | `diagram/` kit (Flow/Step/Group/Compare) | showing the model (HTML/CSS, theme-aware, 0 JS) | none |
 | Chart | `interactive/Chart.tsx` | making data tangible | `client:visible` |
 | Stepper | `interactive/Stepper.tsx` | walking one idea at a time | `client:visible` |
 | Runnable | `interactive/PyodideCell.tsx` | letting them run it | `client:idle` |
+
+## Diagrams (the native kit)
+
+Explanatory workflow diagrams use the native `src/components/diagram/` kit, not Mermaid. The kit is
+plain HTML/CSS styled with the site tokens, so diagrams are compact, fully theme-aware (light and
+dark), and ship no JS. Import what you need and compose:
+
+```mdx
+import Flow from '../../components/diagram/Flow.astro';
+import Step from '../../components/diagram/Step.astro';
+import Group from '../../components/diagram/Group.astro';
+import Compare from '../../components/diagram/Compare.astro';
+
+<Flow>
+  <Step icon="lucide:database" badge="1">Profile</Step>
+  <Step icon="lucide:sparkles" badge="2">Simplify</Step>
+  <Step icon="lucide:git-pull-request" tone="gate">Gate</Step>
+  <Step icon="lucide:check" tone="goal">Commit</Step>
+</Flow>
+```
+
+- **`Flow`** (`direction="row|col"`, optional `title`) draws arrow connectors between its children.
+  Use `col` for anything longer than ~4 steps so it never overflows the column width.
+- **`Step`** takes `icon` (any `lucide:*`), `badge` (a number), `tone`
+  (`default | gate | stop | goal | muted | opaque`), and `branch` / `branchTone` for a single-outcome
+  side fork (block, reject) instead of a full graph edge.
+- **`Group`** (with `label`) holds parallel items as one unit (one arrow in, one out).
+- **`Compare`** lays two `Flow` lanes side by side for an A-vs-B contrast.
+
+Tones carry meaning, kept consistent across posts: `gate` = a checkpoint/decision, `goal` = the
+destination (commit, trust), `stop` = a refusal/block, `opaque` = a black box. Mermaid is retained
+only for incidental graphs where layout does not matter; if you must use it, see the demo post for
+the build-time config.
 
 ## Teaching components
 

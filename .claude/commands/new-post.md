@@ -5,7 +5,7 @@ argument-hint: [post title]
 
 Scaffold a new MDX blog post for the title: **$ARGUMENTS**
 
-Follow `docs/AUTHORING.md` exactly. Steps:
+Follow `docs/guides/AUTHORING.md` exactly. Steps:
 
 1. Derive a kebab-case slug from the title. The file path is `src/content/posts/<slug>.mdx`.
    If a file with that slug already exists, stop and tell the user.
@@ -31,7 +31,7 @@ Follow `docs/AUTHORING.md` exactly. Steps:
    - One or more `<Insight>` callouts for the key idea(s) - import it at the top
    - **An interactive demo** placeholder (Chart / Stepper / PyodideCell) with the right `client:*` directive
    - **Recap / try it**
-5. Honor the voice and rules from `docs/AUTHORING.md`: technical architect + consultant, human with
+5. Honor the voice and rules from `docs/guides/AUTHORING.md`: technical architect + consultant, human with
    humor, explanatory with examples; minimal hyphens; standard ASCII only; NO client/employer names
    (use type/sector descriptors); never use lines-of-code as a metric.
 6. Leave `draft: true`. Do not publish. Remind the user to preview with `npm run dev` and flip the

@@ -18,11 +18,13 @@ export default defineConfig({
   },
 
   markdown: {
+    // Keep authored ASCII as-is: no curly quotes / em-dash conversion (project convention).
+    smartypants: false,
     // Shiki must SKIP mermaid, or it highlights the block before rehype-mermaid
     // can convert it. excludeLangs leaves ```mermaid as plain <code> for the plugin.
     syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid'] },
     // Build-time Mermaid → inline SVG (0 client JS). Requires Chromium (Playwright).
-    rehypePlugins: [[rehypeMermaid, { strategy: 'inline-svg', mermaidConfig: { theme: 'neutral' } }]],
+    rehypePlugins: [[rehypeMermaid, { strategy: 'inline-svg', mermaidConfig: { theme: 'neo', look: 'neo' } }]],
     shikiConfig: { theme: 'github-dark', wrap: true },
   },
 });

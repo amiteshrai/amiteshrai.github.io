@@ -1,0 +1,259 @@
+---
+title: "Governed agentic development"
+date: 2026-06-14
+category: "Agentic AI"
+draft: true
+tags: ["agents", "workflow", "guardrails"]
+summary: "Letting AI agents write production code without losing the plot: the gates, reviewers, and guardrails that keep agentic development trustworthy."
+---
+import Insight from '../../components/Insight.astro';
+import Flow from '../../components/diagram/Flow.astro';
+import Step from '../../components/diagram/Step.astro';
+import Group from '../../components/diagram/Group.astro';
+import Compare from '../../components/diagram/Compare.astro';
+
+The hard part of agentic development was never getting the agent to write code. It writes code all
+day, cheerfully, at 2am, whether or not it should. The hard part is trusting what it wrote when you
+were not watching.
+
+So the useful question is not "how autonomous can the agent be?" It is "what has to be true for me
+to trust the diff?" Treat a coding agent like a brilliant, fast, slightly overconfident junior. You
+do not make a good junior slower. You put rails around them: a clear process, automatic checks, a
+review before anything ships, and a human who signs off on the irreversible. The goal is not
+autonomy. It is governed autonomy.
+
+Across four production codebases I work in - a data platform, an ML forecasting platform, a
+production agent, and a governed analytics layer - the same handful of patterns keep showing up.
+Here are the ones worth stealing.
+
+## 1. A loop, not a free-for-all
+
+Every one of those repos runs the agent through the same rhythm: plan before touching code (and get
+a human nod), execute in small steps, review the diff, and gate before anything leaves the machine.
+
+<Flow>
+  <Step icon="lucide:clipboard-list" badge="1">Plan</Step>
+  <Step icon="lucide:code" badge="2">Execute</Step>
+  <Step icon="lucide:eye" badge="3">Review</Step>
+  <Step icon="lucide:git-pull-request" tone="gate">Gate</Step>
+  <Step icon="lucide:check" tone="goal">Commit</Step>
+</Flow>
+
+It looks obvious written down. The point is that it is enforced, not hoped for. The agent does not
+get to skip from "good idea" to "committed" because it felt confident.
+
+<Insight>
+The loop is the whole game: the agent proposes, the human disposes. Everything else in this post is
+just making each arrow harder to skip.
+</Insight>
+
+## 2. Hooks: guardrails, not handcuffs
+
+The mechanism that enforces the loop is hooks - small scripts that fire at fixed moments. Three
+moments matter:
+
+- **Session start** injects context: what is in flight, what decisions are pending, and the lessons
+  that cost someone an afternoon last week.
+- **Before a tool runs** is where you can actually block. The strongest example: refuse to let the
+  agent edit a file it has no business touching (a data scientist's canonical notebook, say), and
+  point it at a derivative copy instead.
+- **After a tool runs** is where you validate without stopping the flow: compile the model, run the
+  unit tests, lint the change, and surface a warning if something broke.
+
+<Flow direction="col">
+  <Step icon="lucide:play">Session start: inject memory and context</Step>
+  <Step icon="lucide:file-pen">Agent edits a file</Step>
+  <Step icon="lucide:shield-alert" tone="gate" branch="Block + redirect" branchTone="stop">Before the edit: canonical or irreversible?</Step>
+  <Step icon="lucide:flask-conical" branch="Warn, keep flowing">After the edit: compile, test, lint</Step>
+</Flow>
+
+The rule that showed up in every repo: **warn by default, block only for the irreversible.** Hard
+gates everywhere breed a workaround culture - people learn to bypass the tooling. Guidance that
+stays out of the way builds habits instead.
+
+<Insight label="The rule">
+Reserve hard blocks for things you genuinely cannot undo (force-pushing main, editing a source of
+truth you do not own). Everything else is a warning. Friction should match consequence.
+</Insight>
+
+## 3. The review gate: send in the specialists
+
+Before a commit, the best repos fan out a panel of read-only reviewers in parallel. Each one is
+narrow, and - this is the trick - each is grounded in a real bug the codebase actually shipped once.
+One hunts data leakage in features. One hunts "dual source of truth": the same number computed two
+different ways that quietly drift apart. One checks plain correctness.
+
+<Flow direction="col">
+  <Step icon="lucide:file-diff">Staged diff</Step>
+  <Group label="Read-only reviewers, in parallel">
+    <Step icon="lucide:check-check">Correctness</Step>
+    <Step icon="lucide:droplet">Leakage</Step>
+    <Step icon="lucide:copy">Dual source of truth</Step>
+  </Group>
+  <Step icon="lucide:list-checks">Findings</Step>
+  <Step icon="lucide:user-check" tone="gate" branch="Back to edit">Human approves?</Step>
+  <Step icon="lucide:check" tone="goal">Commit</Step>
+</Flow>
+
+A generic "review this please" gets generic results. A reviewer scoped to one failure mode it has
+seen before catches the thing that actually bites. And none of them fix anything - they report. One
+repo runs a deliberate provocateur whose entire job is to challenge, never to patch: ask it to
+finish your code and it answers, "I do not fix code, I challenge it. What assumption are you
+making?" That refusal is the feature. It keeps you owning the decision.
+
+<Insight>
+Specialist reviewers beat one big reviewer because each is calibrated to a specific, expensive
+mistake. The leakage detector exists because leakage already burned someone. Encode your scars.
+</Insight>
+
+## 4. A human at the irreversible moments
+
+Two gates are non-negotiable: commit and push. The agent shows the diff and the message, and waits.
+A hook prints the checklist; the permission system actually holds the door until you say go. It is
+deliberately boring. Boring is also why nobody wakes up to a force-push on main.
+
+## 5. Memory, and decisions you can replay
+
+Agents forget everything between sessions, so the repos give them memory: a small file of what is in
+flight and the gotchas that already cost time. And decisions are append-only - you supersede an old
+ruling with a new one, you do not silently rewrite it. So when someone asks "why is it built this
+way?", there is an answer with a date on it, not a shrug.
+
+That is the same discipline these systems demand of their own outputs, turned inward on how they are
+built.
+
+So far this reads like one recipe. It is not. The principles are universal; the shape they take is
+not. Here are two of those four codebases up close - the same five ideas, two completely different
+workflows, because they defend against completely different ways of being wrong.
+
+## Two workflows, same principles, different shapes
+
+Copying another team's setup wholesale is cargo cult. Their config is the answer to *their* question -
+what are the expensive mistakes *here*? Steal the principles; re-derive the shape from your own scars.
+Two examples, both real, both anonymized.
+
+### A multi-source data platform (dbt on Snowflake)
+
+The danger in this repo is semantic, not syntactic. It unions three different point-of-sale systems
+into one model, and the systems quietly disagree: a deleted row is a refund in one and a voided sale in
+another, a "customer id" collides across instances, one source ships 14% duplicate rows from an
+overlapping sync. The SQL compiles perfectly and is wrong. A generic linter cannot save you here,
+because nothing about the syntax is broken.
+
+So the workflow is built around seeing the data before trusting it, and three agents do the work:
+
+- **Profile before you model.** A read-only `eda-profiler` agent reads the raw source first - null
+  rates, cardinality, timestamp coverage, duplicate rate, junk values like `"unknown"` and `"visa"`
+  sitting in a name column. Modeling decisions (incremental or full refresh? dedup on which key?) fall
+  out of the profile instead of out of optimism. New quirks get appended to one shared patterns file,
+  so the next session starts where this one left off.
+- **Simplify without changing the answer.** A `dbt-code-simplifier` agent refines for the medallion
+  layers and for cost - views by default, an incremental model only when it earns back twice its
+  compute - but it is forbidden from changing *what* a model produces. Clarity, not behavior.
+- **Challenge before you commit.** A domain provocateur, armed with the point-of-sale quirks, refuses
+  to write code. Ask it to fix your join and it answers: "I don't fix code, I challenge it. What
+  assumption are you making about this join?" It makes you pick a lens - CFO, site manager, or data
+  engineer - because "is this revenue?" and "is this throughput?" stress the same query differently.
+
+A `/review` command chains all three: profile, then simplify, then challenge. Hooks hold the edges:
+
+- after every model edit, `dbt compile` and `dbt parse` run and *warn* if something broke
+  (non-blocking, so work in progress still saves);
+- `git commit` and `git push` print the three-gate checklist and wait for your explicit yes;
+- before anyone stops an ingestion pipeline, a hook makes them challenge the downstream models first,
+  because a stopped pipeline freezes dimension tables and starves fact tables differently.
+
+<Flow>
+  <Step icon="lucide:database" badge="1">Profile</Step>
+  <Step icon="lucide:sparkles" badge="2">Simplify</Step>
+  <Step icon="lucide:circle-help" badge="3">Challenge</Step>
+  <Step icon="lucide:git-pull-request" tone="gate">Three-gate</Step>
+  <Step icon="lucide:check" tone="goal">Commit</Step>
+</Flow>
+
+Every piece answers a local risk. Profiling exists because the quirks are invisible until you look.
+The provocateur exists because the dangerous bugs are about meaning, and meaning is exactly what a
+linter cannot check. Cost-aware materialization exists because the lazy default - just make it a
+table - quietly bills you every month.
+
+### An ML forecasting platform (Python on Databricks)
+
+Different repo, different nightmare. Here the danger is statistical: a feature that peeks at the same
+period as the thing it is predicting will score an almost perfect backtest and then collapse in
+production. (If that sounds familiar, it is the exact leak from
+[the second-question post](/posts/build-for-the-second-question) - this is the framework built to make
+it impossible.) On top of that, a data-science team owns the canonical notebooks the platform has to
+faithfully replicate, so silent divergence from the source of truth is its own category of bug.
+
+This repo barely uses one-size agents. It uses a panel of specialists, each grounded in a specific bug
+the codebase actually shipped, each documenting when NOT to call it so they do not drown you in
+duplicate findings:
+
+- a **leakage detector** that traces a new feature back to its source table and checks whether its
+  aggregation window contains the very row it is trying to predict (it has caught leaks at both the
+  daily and the monthly grain - one of them scored an r-squared of basically 1.0 before anyone noticed
+  something was off);
+- a **forecast-eval reviewer** for the classic time-series sins: a train/test split without
+  `shuffle=False`, a scaler fit on the whole dataset before the split, k-fold on autocorrelated data;
+- a **dual-source-of-truth detector** that flags the same value computed two ways, because the day
+  someone renames one copy and not the other is the day the numbers silently drift apart;
+- an **artifact auditor** that checks fitted MLflow artifacts agree across markets;
+- and a **verified reviewer** required to read git history and re-read the exact lines before it
+  reports anything - no speculative "this might break" without proof.
+
+The hooks invert the data platform's posture in one place. Almost everything warns - except editing a
+canonical data-science notebook, which is blocked outright: the hook exits non-zero and refuses the
+edit. Silently diverging from the source of truth is the one mistake here you cannot walk back.
+Friction matches consequence.
+
+Because its bugs are subtle and recurring, this repo leans hard on memory: append-only files
+(principles, lessons, project state, feedback) indexed by one file loaded at every session start. The
+lessons are scar tissue with dates: "the local Spark connection hangs forever when the cluster is
+asleep, submit a job instead"; "a committed config had five regressions but the deployed job kept
+running the correct version, because syncing files is not deploying them." A session-start hook
+surfaces what is in flight, and flags it if another session touched memory in the last half hour.
+
+<Flow direction="col">
+  <Step icon="lucide:file-pen">Edit a file</Step>
+  <Step icon="lucide:shield-alert" tone="gate" branch="BLOCK" branchTone="stop">Canonical notebook?</Step>
+  <Step icon="lucide:git-pull-request">Commit gate</Step>
+  <Group label="Specialist reviewers, in parallel">
+    <Step>Leakage</Step>
+    <Step>Eval</Step>
+    <Step>Dual-source</Step>
+    <Step>Artifact</Step>
+  </Group>
+  <Step icon="lucide:user-check" tone="gate">Approve?</Step>
+  <Step icon="lucide:check" tone="goal">Commit</Step>
+</Flow>
+
+<Insight label="The pattern, not the folder">
+Both repos run the same five ideas - a loop you cannot skip, hooks that warn before they block,
+reviewers that have seen the bug before, a human at the irreversible moment, a memory with dates on it.
+What differs is everything concrete: one profiles data and challenges meaning, the other hunts leakage
+and guards a canonical source. Copy the principles. Derive the shape from the mistakes that actually
+cost you a weekend.
+</Insight>
+
+A quick way to see it: line the two up by what they are afraid of.
+
+| | Data platform (dbt) | Forecasting platform (ML) |
+|---|---|---|
+| Worst silent bug | Cross-source semantics ("deleted" means two things) | Same-period leakage (a feature peeks at its own answer) |
+| Agents that earn their keep | profiler, simplifier, domain provocateur | leakage detector, eval reviewer, artifact auditor |
+| The one hard block | none - commit and push gates only | editing a canonical source notebook |
+| Memory leans on | a shared file of data quirks | dated lessons from real incidents |
+| Pointless here | leakage detection (no model to leak) | cross-source semantic challenge (no POS systems) |
+
+Neither setup would survive a transplant into the other repo. That is the whole point.
+
+## The honest part
+
+One repo had hooks wired up in its settings that pointed at scripts which did not exist on disk. The
+setup looked thoroughly governed. Half of it was a quiet no-op. The lesson is not subtle: test your
+guardrails the way you test your code, or you are trusting a checklist that nobody actually runs.
+
+Governed agentic development is not about trusting the agent more. It is about making the system
+around the agent trustworthy: a loop you cannot skip, guardrails that warn before they block,
+reviewers that have seen the bug before, a human at the moments you cannot take back, and a memory
+that can answer "why". Let the agent go fast. Keep your hands on the wheel.

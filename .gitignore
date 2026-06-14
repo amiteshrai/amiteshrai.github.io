@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # brainstorming visual-companion artifacts
 .superpowers/
+
+# local planning notes (not part of the published site)
+docs/plans/

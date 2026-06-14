@@ -8,17 +8,25 @@ export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) =>
     import.meta.env.PROD ? data.draft !== true : true
   );
-  return posts.map((post) => ({
+  // Newest first, so neighbor i-1 is newer and i+1 is older.
+  const sorted = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  // Reduce each neighbor to the minimum the footer nav needs.
+  const link = (entry) => (entry ? { slug: entry.id, title: entry.data.title } : null);
+  return sorted.map((post, i) => ({
     params: { slug: post.id },
-    props: { post },
+    props: {
+      post,
+      newer: link(sorted[i - 1]), // chronologically next
+      older: link(sorted[i + 1]), // chronologically previous
+    },
   }));
 }
 
-const { post } = Astro.props;
+const { post, newer, older } = Astro.props;
 // `render(post)` replaces the removed `post.render()` method (Astro 6).
 const { Content, headings } = await render(post);
 ---
 
-<PostLayout frontmatter={post.data} headings={headings}>
+<PostLayout frontmatter={post.data} headings={headings} newer={newer} older={older}>
   <Content />
 </PostLayout>

@@ -1,0 +1,21 @@
+---
+// A single node in a Flow/Group. Theme-aware via tokens; tone carries meaning.
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  icon?: string;
+  badge?: string | number;
+  tone?: 'default' | 'gate' | 'stop' | 'goal' | 'muted' | 'opaque';
+  branch?: string;
+  branchTone?: 'default' | 'stop' | 'goal';
+}
+
+const { icon, badge, tone = 'default', branch, branchTone = 'default' } = Astro.props;
+---
+
+<div class:list={['dgm-step', `dgm-step--${tone}`]}>
+  {badge != null && badge !== '' && <span class="dgm-step__badge">{badge}</span>}
+  {icon && <Icon name={icon} class="dgm-step__icon" />}
+  <span class="dgm-step__label"><slot /></span>
+  {branch && <span class:list={['dgm-branch', `dgm-branch--${branchTone}`]}>{branch}</span>}
+</div>

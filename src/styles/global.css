@@ -69,5 +69,77 @@
 .post-body pre code { background: transparent; border: 0; padding: 0; font-size: .85rem; }
 .post-body blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--muted); font-style: italic; }
 .post-body svg, .post-body img { max-width: 100%; height: auto; }
-/* Mermaid build-time SVG (neutral theme) sits centered on either background */
-.post-body svg[aria-roledescription] { display: block; margin: 1.25rem auto; background: #fff; border-radius: 8px; padding: .75rem; }
+
+/* ---- Native diagram kit (Flow / Step / Group / Compare) ---------------------
+   Theme-aware via tokens; arrow connectors are CSS masks colored by the theme,
+   so diagrams follow light/dark with no static-SVG canvas. */
+:root {
+  --dgm-arrow-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h16'/%3E%3Cpath d='m13 5 7 7-7 7'/%3E%3C/svg%3E");
+  --dgm-arrow-d: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v16'/%3E%3Cpath d='m5 13 7 7 7-7'/%3E%3C/svg%3E");
+}
+.dgm { margin: 1.75rem 0; }
+.dgm__title { font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin-bottom: .6rem; }
+.dgm__track { display: flex; }
+.dgm--row .dgm__track { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 2.1rem; }
+.dgm--col .dgm__track { flex-direction: column; align-items: flex-start; gap: 1.9rem; }
+.dgm__track > * { position: relative; }
+
+/* arrow connectors between consecutive steps */
+.dgm--row .dgm__track > * + *::before {
+  content: ""; position: absolute; top: 50%; left: -1.7rem; transform: translateY(-50%);
+  width: 1.35rem; height: 1rem; background-color: var(--muted);
+  -webkit-mask: var(--dgm-arrow-r) center / contain no-repeat; mask: var(--dgm-arrow-r) center / contain no-repeat;
+}
+.dgm--col .dgm__track > * + *::before {
+  content: ""; position: absolute; left: 1.15rem; top: -1.45rem;
+  width: 1rem; height: 1.25rem; background-color: var(--muted);
+  -webkit-mask: var(--dgm-arrow-d) center / contain no-repeat; mask: var(--dgm-arrow-d) center / contain no-repeat;
+}
+
+/* node card */
+.dgm-step { position: relative; display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .85rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--fg); font-size: .9rem; font-weight: 500; line-height: 1.2; }
+.dgm-step__icon { width: 1.05rem; height: 1.05rem; color: var(--accent); flex: none; }
+.dgm-step__badge { display: inline-grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 999px; background: var(--accent); color: var(--accent-fg); font-size: .7rem; font-weight: 700; flex: none; }
+.dgm-step--gate { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--card)); color: var(--accent); }
+.dgm-step--goal { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.dgm-step--goal .dgm-step__icon { color: var(--accent-fg); }
+.dgm-step--stop { border-color: #b3261e; background: color-mix(in srgb, #b3261e 12%, var(--card)); color: #b3261e; }
+.dgm-step--muted { color: var(--muted); }
+.dgm-step--opaque { background: #2a2723; border-color: #2a2723; color: #f5f1ea; }
+.dgm-step--opaque .dgm-step__icon { color: #cf7c6a; }
+
+/* single-outcome side branch (block / reject) */
+.dgm-branch { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 1.7rem; white-space: nowrap; padding: .32rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); font-size: .8rem; font-weight: 500; }
+.dgm-branch::before { content: ""; position: absolute; left: -1.55rem; top: 50%; transform: translateY(-50%); width: 1.2rem; height: .9rem; background-color: var(--muted); -webkit-mask: var(--dgm-arrow-r) center / contain no-repeat; mask: var(--dgm-arrow-r) center / contain no-repeat; }
+.dgm-branch--stop { color: #b3261e; border-color: #b3261e; background: color-mix(in srgb, #b3261e 12%, var(--card)); }
+.dgm-branch--goal { color: var(--accent-fg); background: var(--accent); border-color: var(--accent); }
+
+/* parallel group */
+.dgm-group { position: relative; border: 1px dashed var(--border); border-radius: 12px; padding: 1.45rem .9rem .9rem; }
+.dgm-group__label { position: absolute; top: -.62rem; left: .85rem; background: var(--bg); padding: 0 .45rem; font-family: var(--font-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+.dgm-group__items { display: flex; gap: .6rem; flex-wrap: wrap; }
+.dgm-group .dgm-step { font-size: .82rem; padding: .42rem .65rem; }
+
+/* side-by-side comparison */
+.dgm-compare { display: flex; gap: 1.5rem; margin: 1.75rem 0; flex-wrap: wrap; }
+.dgm-compare > * { flex: 1 1 0; min-width: 240px; margin: 0; padding: 1rem 1.1rem 1.2rem; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--card) 55%, var(--bg)); }
+
+/* stack row flows on narrow screens; reuse the down-arrow connector */
+@media (max-width: 640px) {
+  .dgm--row .dgm__track { flex-direction: column; align-items: flex-start; gap: 1.9rem; }
+  .dgm--row .dgm__track > * + *::before { top: -1.45rem; left: 1.15rem; transform: none; width: 1rem; height: 1.25rem; -webkit-mask: var(--dgm-arrow-d) center / contain no-repeat; mask: var(--dgm-arrow-d) center / contain no-repeat; }
+}
+/* Mermaid renders once at build to a static (light) SVG. Frame it as a figure on a
+   light canvas so it stays legible on BOTH themes - on dark, a bare diagram's strokes
+   would vanish into the background. fit-content keeps the frame hugging the diagram. */
+.post-body svg[aria-roledescription] {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  background: #fdfcf9;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}

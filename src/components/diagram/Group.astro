@@ -1,0 +1,16 @@
+---
+// A labeled box of parallel items. As a single Flow child it gets one arrow in
+// and one arrow out; the items inside have no connectors (they run in parallel).
+interface Props {
+  label?: string;
+}
+
+const { label } = Astro.props;
+---
+
+<div class="dgm-group">
+  {label && <p class="dgm-group__label">{label}</p>}
+  <div class="dgm-group__items">
+    <slot />
+  </div>
+</div>

@@ -1,0 +1,135 @@
+---
+title: "Build for that second question"
+date: 2026-06-14
+category: "Essays"
+draft: true
+tags: ["trust", "architecture"]
+summary: "Most systems are built to answer 'did it work?'. The ones that last answer 'why?' and 'can we prove it?'."
+---
+import Insight from '../../components/Insight.astro';
+import PyodideCell from '../../components/interactive/PyodideCell.tsx';
+import Flow from '../../components/diagram/Flow.astro';
+import Step from '../../components/diagram/Step.astro';
+import Compare from '../../components/diagram/Compare.astro';
+
+Every system gets asked two questions. The first is easy: did it work? Did the job run, did the
+model score, did the agent reply? The second is the one that decides whether anyone keeps trusting
+you: why did it do that, and can you prove it?
+
+Most engineering optimizes for the first question. I build for the second.
+
+Speed is table stakes now. Anyone can stand up a pipeline, fine tune a model, or wire an LLM into a
+chat box over a weekend. The thing that separates a demo from a system someone bets a quarter on is
+whether it holds up when a human pushes on it: an operator at 11pm, an auditor with a checklist, an
+exec who does not believe your number.
+
+<Compare>
+  <Flow direction="col" title="The first question (easy)">
+    <Step icon="lucide:box">Output</Step>
+    <Step icon="lucide:circle-help" tone="gate">Did it work?</Step>
+    <Step>Ship</Step>
+  </Flow>
+  <Flow direction="col" title="The second question (the point)">
+    <Step icon="lucide:box">Output</Step>
+    <Step icon="lucide:search-check" tone="gate">Why? Can we prove it?</Step>
+    <Step tone="goal">Trust</Step>
+  </Flow>
+</Compare>
+
+Here is what "build for the second question" looks like across the work I do.
+
+## Data platforms
+
+A pricing recommendation is only as good as your ability to say where it came from. If answering
+"why is this the best price?" takes a week of spelunking through logs, the platform has failed even
+when the number was right. The fix is boring and powerful: one id that threads every layer, so root
+cause is a single query instead of an archaeology dig.
+
+Concretely: stamp one `lineage_id` on a recommendation the moment it is born, and carry it through
+every table it touches. Answering "why this price?" goes from a week of guesswork to one query.
+
+```sql
+-- Without lineage: which inputs produced this number? Nobody knows. Go read the logs.
+
+-- With one id threaded through every layer, the recommendation carries its own receipt:
+SELECT stage, input_snapshot, rule_applied, output
+FROM   price_trace
+WHERE  lineage_id = 'rec_9f3a'   -- the id printed right next to the recommendation
+ORDER  BY stage;                 -- raw -> features -> model -> rounding -> final price
+```
+
+One row per stage, in order, with the inputs each one saw. The second question now has a one line
+answer instead of a war room.
+
+## Forecasting
+
+A backtest that looks brilliant and a model that face-plants in production usually share one cause:
+the test quietly peeked at data it would never have had in real life. Stamping that leak out in the
+notebook is whack-a-mole. Making it impossible in the framework, by construction, is the difference
+between a slide and something you can stake a target on.
+
+Here is that leak in a dozen lines. Same model both times - predict a day from the days around it.
+The only thing that changes is which days the backtest lets the model see. Run it:
+
+<PyodideCell client:idle initialCode={`# Predict each day's value. Same idea both times.
+# The ONLY difference is which days the backtest lets the model see.
+series = [10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25, 26]
+
+def mae(preds, actual):
+    pairs = [(p, a) for p, a in zip(preds, actual) if p is not None]
+    return sum(abs(p - a) for p, a in pairs) / len(pairs)
+
+# LEAKY: predict day t from the average of t-1 AND t+1.
+# Reads beautifully... but t+1 is the future. The test set leaked in.
+leaky = [None] * len(series)
+for t in range(1, len(series) - 1):
+    leaky[t] = (series[t - 1] + series[t + 1]) / 2
+
+# HONEST: predict day t from only what you would actually have - yesterday.
+honest = [None] + series[:-1]
+
+print(f"Leaky  backtest MAE: {mae(leaky, series):.2f}   <- looks brilliant")
+print(f"Honest backtest MAE: {mae(honest, series):.2f}   <- what production gives you")`} />
+
+The leaky run answers the first question - did it score well? - with a confident yes. The second
+question - can you prove it never touched the future? - is the one that catches it.
+
+<Insight label="Try it">
+Edit the `honest` predictor to also reach for `series[t + 1]` and watch its error collapse to match
+the leaky one. That collapse is the bug, not the win. The whole job of a forecasting framework is to
+make that line impossible to write by accident.
+</Insight>
+
+## Agents
+
+An LLM agent that is a pile of chained prompts is a black box that occasionally apologizes. The same
+agent modeled as a state machine, with explicit nodes and inspectable transitions, can tell you
+which step made the call and why. One of these ships. The other one demos well and then haunts you.
+
+<Compare>
+  <Flow direction="col" title="Chained prompts">
+    <Step icon="lucide:box">Input</Step>
+    <Step tone="opaque">one opaque blob of prompts</Step>
+    <Step tone="muted">Answer, plus an apology</Step>
+  </Flow>
+  <Flow direction="col" title="State machine">
+    <Step icon="lucide:box">Input</Step>
+    <Step>Classify</Step>
+    <Step>Retrieve</Step>
+    <Step>Decide</Step>
+    <Step tone="goal">Answer, plus which node decided and why</Step>
+  </Flow>
+</Compare>
+
+When something goes wrong at 11pm, the difference is everything: the black box can only say "sorry,
+let me try again"; the state machine can tell you it failed at `Retrieve` and hand you the inputs
+that node saw.
+
+<Insight>
+The throughline: design so the second question has a cheap answer. Traceability, reproducibility,
+and inspectable state are not compliance chores you bolt on later. They are what let you move fast
+without quietly lying to yourself.
+</Insight>
+
+Speed gets you to the demo. Answering the second question, cheaply, every single time, is what gets
+you trusted with the next, bigger thing. That is the lens behind everything I write here.

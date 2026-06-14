@@ -9,7 +9,7 @@ const posts = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     // One category per post, aligned to the positioning pillars (required = fail-fast).
-    category: z.enum(['Data Platforms', 'MLOps & Forecasting', 'Agentic AI']),
+    category: z.enum(['Data Platforms', 'MLOps & Forecasting', 'Agentic AI', 'Essays']),
     draft: z.boolean().default(true), // fail-safe: unpublished by default
     tags: z.array(z.string()).default([]),
     summary: z.string().default(''),
