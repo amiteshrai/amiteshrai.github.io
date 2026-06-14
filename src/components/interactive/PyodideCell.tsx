@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Tier 4 — runnable Python. Pyodide (~10MB WASM) is loaded LAZILY from the public
+// Tier 4 - runnable Python. Pyodide (~10MB WASM) is loaded LAZILY from the public
 // jsDelivr CDN, never bundled. A module-level promise guards against double-loading
 // when multiple cells exist on one page.
 
@@ -88,30 +88,30 @@ export default function PyodideCell({ initialCode = 'print("hello")' }: { initia
   const busy = status === 'loading' || status === 'running';
 
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-neutral-200">
+    <div className="my-6 overflow-hidden rounded-xl border border-border">
       <textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}
         rows={Math.max(3, code.split('\n').length)}
-        className="block w-full resize-y bg-neutral-900 p-4 font-mono text-sm text-neutral-100 focus:outline-none"
+        className="block w-full resize-y bg-[#1c1917] p-4 font-mono text-sm text-[#f5f1ea] focus:outline-none"
       />
-      <div className="flex items-center gap-3 border-t border-neutral-200 bg-neutral-50 px-4 py-2">
+      <div className="flex items-center gap-3 border-t border-border bg-card px-4 py-2">
         <button
           onClick={run}
           disabled={busy}
-          className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-md bg-accent px-3 py-1 text-sm font-medium text-accent-fg disabled:opacity-50"
         >
-          {status === 'running' ? 'Running…' : 'Run'}
+          {status === 'running' ? 'Running...' : 'Run'}
         </button>
-        <span className="text-xs text-neutral-500">
-          {status === 'loading' && 'Loading Python runtime…'}
+        <span className="font-mono text-xs text-muted">
+          {status === 'loading' && 'Loading Python runtime...'}
           {status === 'ready' && 'Python ready'}
           {status === 'error' && 'Failed to load runtime'}
         </span>
       </div>
       {output && (
-        <pre className="m-0 max-h-64 overflow-auto border-t border-neutral-200 bg-white p-4 font-mono text-sm text-neutral-800">
+        <pre className="m-0 max-h-64 overflow-auto border-t border-border bg-bg p-4 font-mono text-sm text-fg">
           {output}
         </pre>
       )}
