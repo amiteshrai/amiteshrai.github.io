@@ -4,13 +4,14 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
+import icon from 'astro-icon';
 import rehypeMermaid from 'rehype-mermaid';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://amiteshrai.github.io',
   output: 'static',
-  integrations: [react(), mdx()],
+  integrations: [react(), mdx(), icon()],
 
   vite: {
     plugins: [tailwindcss()]
