@@ -1,5 +1,6 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import Logo from './Logo.astro';
 
 const path = Astro.url.pathname;
 const links = [
@@ -15,7 +16,10 @@ const isActive = (href: string) => {
 
 <header class="border-b border-border">
   <div class="mx-auto flex w-full max-w-4xl items-center justify-between px-5 py-4">
-    <a href="/" class="font-mono text-base font-semibold tracking-tight text-fg">amitesh rai</a>
+    <a href="/" class="flex items-center gap-2 font-mono text-base font-semibold tracking-tight text-fg">
+      <Logo class="h-[1.05em] w-[1.05em]" />
+      amitesh rai
+    </a>
     <nav class="flex items-center gap-4">
       {
         links.map((l) => (

@@ -1,0 +1,14 @@
+---
+// Stacked-strata brand mark (matches favicon.svg). Base layers use
+// currentColor so they follow the in-page theme; the cap uses the accent.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg viewBox="0 0 128 128" class={className} fill="none" aria-hidden="true">
+  <rect x="66" y="23" width="40" height="20" rx="4" fill="var(--accent)" />
+  <rect x="44" y="54" width="62" height="20" rx="4" fill="currentColor" />
+  <rect x="22" y="85" width="84" height="20" rx="4" fill="currentColor" />
+</svg>
