@@ -23,9 +23,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - name: Install Chromium for Mermaid render
-        run: npx playwright install --with-deps chromium
+      - run: npm install --no-audit --no-fund
       - uses: actions/configure-pages@v5
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
