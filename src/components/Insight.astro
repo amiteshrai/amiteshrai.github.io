@@ -1,0 +1,15 @@
+---
+// Explanatory teaching callout - the "key idea" box. Use in MDX to surface the one
+// thing a reader should take away. Label is overridable (e.g. "Try it", "Gotcha").
+interface Props {
+  label?: string;
+}
+const { label = 'Insight' } = Astro.props;
+---
+
+<aside class="my-6 rounded-lg border border-border border-l-4 border-l-accent bg-card p-4">
+  <p class="mb-1 font-mono text-xs uppercase tracking-[0.14em] text-accent">{label}</p>
+  <div class="text-sm leading-relaxed text-fg [&>*+*]:mt-2">
+    <slot />
+  </div>
+</aside>
