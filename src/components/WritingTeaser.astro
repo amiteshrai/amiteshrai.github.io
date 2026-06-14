@@ -1,0 +1,34 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = (
+  await getCollection('posts', ({ data }) =>
+    import.meta.env.PROD ? data.draft !== true : true
+  )
+)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<section class="border-t border-border py-10">
+  <div class="mb-6 flex items-center justify-between">
+    <p class="font-mono text-xs uppercase tracking-[0.14em] text-muted">Writing</p>
+    <a href="/writing" class="font-mono text-xs text-accent hover:underline">All posts -&gt;</a>
+  </div>
+  <div class="flex flex-col">
+    {
+      posts.map((post) => (
+        <a
+          href={`/posts/${post.id}`}
+          class="flex items-baseline justify-between gap-4 border-b border-border py-3 first:border-t"
+        >
+          <span>
+            <span class="font-semibold">{post.data.title}</span>
+            {post.data.summary && <span class="mt-0.5 block text-sm text-muted">{post.data.summary}</span>}
+          </span>
+          <span class="whitespace-nowrap font-mono text-xs text-muted">{post.data.category}</span>
+        </a>
+      ))
+    }
+  </div>
+</section>

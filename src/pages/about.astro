@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const experience = [
+  {
+    role: 'Engineering Manager & Solutions Architect',
+    org: 'eClerx',
+    when: 'Sep 2025 - Present',
+    note: 'Lead a 10-person data & AI team across 3 enterprise clients. Own SOW delivery, architecture, hiring, and proposals - including the technical narrative for a $3.5M RFP win. Shipped a Snowflake pricing-intelligence platform (HD Supply), an MLOps forecasting platform (Adidas APAC), and a solo-built agentic sales product (eKai).',
+  },
+  {
+    role: 'Engineering Manager',
+    org: 'Mammoth Holdings',
+    when: 'Mar 2023 - Aug 2025',
+    note: 'Built the data platform for one of the largest US car-wash networks (400+ locations) from greenfield - medallion pipelines, models, monitoring, and reporting. Same-store-sales automation cut manual effort 85%. Designed an LPR-based computer-vision customer-tracking system.',
+  },
+  {
+    role: 'Senior Data Engineer',
+    org: 'Vauld',
+    when: 'Mar 2022 - Feb 2023',
+    note: 'Built the foundational warehouse for a crypto trading platform - on-chain and off-chain integration, anomaly detection for fraud and wash-trade monitoring, and ML fraud models (TensorFlow, graph neural networks).',
+  },
+  {
+    role: 'Associate Technical Architect',
+    org: 'Ugam (now Merkle / dentsu)',
+    when: 'Jul 2015 - Mar 2022',
+    note: 'Seven years of technical leadership across retail analytics and pricing intelligence for global enterprise clients. Delivered $500K+ in annual client cost savings; cut SKU-rationalization turnaround 70% with OC&C Consulting.',
+  },
+  {
+    role: 'Lead Consultant (Platform, Architecture & AI)',
+    org: 'identify.bio',
+    when: 'Jun 2022 - Jul 2024',
+    note: 'Built a clinical-grade digital-pathology platform from first commit to production. Architected 15+ PyTorch models reaching >90% accuracy across hospital trials in India, South Korea, and Brazil. Led a team of 4.',
+  },
+];
+
+const skills = [
+  { group: 'Agentic & LLMs', items: 'LangGraph, LangChain, Anthropic Claude, LangSmith, ChromaDB, RAG, MCP' },
+  { group: 'ML & Forecasting', items: 'LightGBM, Prophet, PyTorch, TensorFlow, MLflow' },
+  { group: 'Data & Analytics', items: 'Snowflake, dbt, Airflow, Databricks, Spark, Delta Lake, Medallion, BigQuery' },
+  { group: 'Full-Stack', items: 'Python, TypeScript, React, FastAPI, Node.js, Tailwind, Playwright' },
+  { group: 'Infrastructure', items: 'AWS, GCP, Docker, CI/CD, Cloud Run, PostgreSQL, Redis, MongoDB' },
+  { group: 'Leadership', items: 'SOW delivery, Solutions architecture, RFP/proposals, Technical hiring, Team management' },
+];
+---
+
+<BaseLayout title="About - Amitesh Kumar" description="Engineering leader, 10+ years, building data & AI platforms that hold up under scrutiny.">
+  <section class="py-8">
+    <span class="block h-[3px] w-11 bg-accent"></span>
+    <h1 class="mt-4 font-serif text-4xl font-bold tracking-tight">About</h1>
+    <div class="post-body mt-5 max-w-[60ch]">
+      <p>
+        I'm an engineering leader with 10+ years building data and AI platforms - the kind that
+        work at scale and stay trustworthy under operator and auditor pressure. I lead teams,
+        architect platforms, and write production code, often in the same week.
+      </p>
+      <p>
+        Most engineers sell speed. I build for speed <em>and</em> auditability: every output
+        traceable to its source, every model reproducible, every pipeline honest about what it
+        did. That discipline is what holds up when the stakes - and the scrutiny - are real.
+      </p>
+    </div>
+  </section>
+
+  <section class="border-t border-border py-8">
+    <p class="mb-6 font-mono text-xs uppercase tracking-[0.14em] text-muted">Experience</p>
+    <div class="flex flex-col gap-6">
+      {
+        experience.map((e) => (
+          <div>
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 class="font-serif text-lg font-semibold">
+                {e.role} <span class="text-muted">/ {e.org}</span>
+              </h3>
+              <span class="font-mono text-xs text-muted">{e.when}</span>
+            </div>
+            <p class="mt-1 max-w-[68ch] text-sm leading-relaxed text-muted">{e.note}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="border-t border-border py-8">
+    <p class="mb-6 font-mono text-xs uppercase tracking-[0.14em] text-muted">Skills</p>
+    <div class="grid gap-4 sm:grid-cols-2">
+      {
+        skills.map((s) => (
+          <div class="rounded-xl border border-border bg-card p-4">
+            <p class="font-serif text-sm font-semibold">{s.group}</p>
+            <p class="mt-1 text-sm text-muted">{s.items}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="border-t border-border py-8">
+    <p class="max-w-[52ch] text-lg leading-relaxed text-fg">
+      Open to engineering-leadership roles and select consulting engagements.
+    </p>
+    <div class="mt-4 flex flex-wrap gap-4 font-mono text-sm">
+      <a class="text-accent hover:underline" href="mailto:amiteshrai@outlook.com">email</a>
+      <a class="text-accent hover:underline" href="https://linkedin.com/in/amiteshkumarrai">linkedin</a>
+      <a class="text-accent hover:underline" href="https://github.com/amiteshrai">github</a>
+      <a class="text-accent hover:underline" href="/resume.pdf">resume</a>
+    </div>
+  </section>
+</BaseLayout>

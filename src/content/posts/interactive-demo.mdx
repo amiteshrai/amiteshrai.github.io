@@ -1,0 +1,32 @@
+---
+title: "Four Kinds of Interactive"
+date: 2026-06-12
+category: "Agentic AI"
+draft: false
+tags: ["demo"]
+summary: "Diagram, chart, reactive component, runnable code — one post."
+---
+import Chart from '../../components/interactive/Chart.tsx';
+import Stepper from '../../components/interactive/Stepper.tsx';
+import PyodideCell from '../../components/interactive/PyodideCell.tsx';
+
+Each block below is a different *tier* of interactivity, and each ships only the JS it needs.
+
+## 1. Diagram (build-time, zero JS)
+
+```mermaid
+flowchart LR
+  Bronze --> Silver --> Gold --> Mart
+```
+
+## 2. Chart (hydrates when scrolled into view)
+
+<Chart client:visible />
+
+## 3. Reactive walkthrough
+
+<Stepper client:visible />
+
+## 4. Runnable Python (loads Pyodide on demand)
+
+<PyodideCell client:idle initialCode="print(sum(range(10)))" />

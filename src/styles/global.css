@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (toggled on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Map semantic tokens + fonts into Tailwind (inline = utilities follow the live vars) */
+@theme inline {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-border: var(--border);
+  --color-card: var(--card);
+}
+
+/* Light = D2 editorial */
+:root {
+  --bg: #faf8f3;
+  --fg: #1a1a1a;
+  --muted: #57534e;
+  --accent: #7c2d2d;
+  --accent-fg: #ffffff;
+  --border: #e7ddd0;
+  --card: #fffdf8;
+  color-scheme: light;
+}
+
+/* Dark = warm editorial */
+.dark {
+  --bg: #1c1917;
+  --fg: #f5f1ea;
+  --muted: #b0a99e;
+  --accent: #cf7c6a;
+  --accent-fg: #1c1917;
+  --border: #33302b;
+  --card: #232019;
+  color-scheme: dark;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection { background: var(--accent); color: var(--accent-fg); }
+  a { color: inherit; }
+}
+
+/* MDX post prose - manual (no typography plugin), themed via tokens */
+.post-body { font-size: 1.05rem; line-height: 1.7; color: var(--fg); }
+.post-body > * + * { margin-top: 1rem; }
+.post-body h2 { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 700; letter-spacing: -.01em; margin-top: 2.2rem; }
+.post-body h3 { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; margin-top: 1.6rem; }
+.post-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.post-body ul, .post-body ol { margin-left: 1.25rem; }
+.post-body ul { list-style: disc; }
+.post-body ol { list-style: decimal; }
+.post-body li + li { margin-top: .25rem; }
+.post-body code { font-family: var(--font-mono); font-size: .85em; background: var(--card); border: 1px solid var(--border); padding: .1em .35em; border-radius: 4px; }
+.post-body pre { border-radius: 8px; padding: 1rem; overflow-x: auto; border: 1px solid var(--border); }
+.post-body pre code { background: transparent; border: 0; padding: 0; font-size: .85rem; }
+.post-body blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--muted); font-style: italic; }
+.post-body svg, .post-body img { max-width: 100%; height: auto; }
+/* Mermaid build-time SVG (neutral theme) sits centered on either background */
+.post-body svg[aria-roledescription] { display: block; margin: 1.25rem auto; background: #fff; border-radius: 8px; padding: .75rem; }

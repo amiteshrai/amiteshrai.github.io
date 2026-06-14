@@ -1,0 +1,18 @@
+---
+const year = new Date().getFullYear();
+const links = [
+  { href: 'mailto:amiteshrai@outlook.com', label: 'email' },
+  { href: 'https://linkedin.com/in/amiteshkumarrai', label: 'linkedin' },
+  { href: 'https://github.com/amiteshrai', label: 'github' },
+  { href: '/resume.pdf', label: 'resume' },
+];
+---
+
+<footer class="border-t border-border">
+  <div class="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-3 px-5 py-6">
+    <span class="text-sm text-muted">(c) {year} Amitesh Kumar</span>
+    <nav class="flex gap-4 font-mono text-sm">
+      {links.map((l) => <a href={l.href} class="text-accent hover:underline">{l.label}</a>)}
+    </nav>
+  </div>
+</footer>
