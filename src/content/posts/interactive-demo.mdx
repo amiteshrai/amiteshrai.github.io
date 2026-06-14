@@ -2,14 +2,16 @@
 title: "Four Kinds of Interactive"
 date: 2026-06-12
 category: "Agentic AI"
-draft: false
+draft: true
 tags: ["demo"]
-summary: "Diagram, chart, reactive component, runnable code — one post."
+summary: "Diagram, chart, reactive component, runnable code - one post."
 ---
 import Chart from '../../components/interactive/Chart.tsx';
 import Stepper from '../../components/interactive/Stepper.tsx';
 import PyodideCell from '../../components/interactive/PyodideCell.tsx';
 import Insight from '../../components/Insight.astro';
+import Flow from '../../components/diagram/Flow.astro';
+import Step from '../../components/diagram/Step.astro';
 
 Each block below is a different *tier* of interactivity, and each ships only the JS it needs.
 
@@ -21,16 +23,12 @@ lightest one that makes the idea click.
 
 ## 1. Diagram (build time, zero JS)
 
-```mermaid
----
-config:
-  layout: elk
-  look: neo
-  theme: neo
----
-flowchart LR
-  Bronze --> Silver --> Gold --> Mart
-```
+<Flow>
+  <Step icon="lucide:database" badge="1">Bronze</Step>
+  <Step icon="lucide:filter" badge="2">Silver</Step>
+  <Step icon="lucide:sparkles" badge="3">Gold</Step>
+  <Step icon="lucide:store" tone="goal">Mart</Step>
+</Flow>
 
 ## 2. Chart (hydrates when scrolled into view)
 
