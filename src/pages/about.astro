@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactBlock from '../components/ContactBlock.astro';
 
 const experience = [
   {
@@ -143,14 +144,5 @@ const skills = [
     </div>
   </section>
 
-  <section class="border-t border-border py-8">
-    <p class="text-lg leading-relaxed text-fg">
-      Open to senior roles and select consulting in data, analytics, and AI.
-    </p>
-    <div class="mt-4 flex flex-wrap gap-4 font-mono text-sm">
-      <a class="text-accent hover:underline" href="mailto:amiteshrai@outlook.com">email</a>
-      <a class="text-accent hover:underline" href="https://linkedin.com/in/amiteshkumarrai">linkedin</a>
-      <a class="text-accent hover:underline" href="https://github.com/amiteshrai">github</a>
-    </div>
-  </section>
+  <ContactBlock />
 </BaseLayout>
