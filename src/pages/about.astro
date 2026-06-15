@@ -34,13 +34,40 @@ const experience = [
   },
 ];
 
+const principles = [
+  {
+    title: 'Simplicity, earned',
+    desc: 'I map the full complexity before cutting to the simplest design that survives it. Clever is a liability; clear is what lasts.',
+  },
+  {
+    title: 'One source of truth',
+    desc: 'Every fact lives in exactly one place, held there by structure rather than convention, so two copies can never drift apart and start disagreeing.',
+  },
+  {
+    title: 'Validate at the boundary',
+    desc: 'Bad input fails fast where it enters; the core trusts its data instead of second-guessing it three layers down.',
+  },
+  {
+    title: 'Lineage by default',
+    desc: 'Every metric traces back to its source, so a number can answer for itself instead of shrugging.',
+  },
+  {
+    title: 'Config over rewrite',
+    desc: 'Behavior lives in configuration, not hardcoded branches, so a new market or metric is a config change, not a re-engineering project.',
+  },
+  {
+    title: 'Safe to retry',
+    desc: 'Idempotent operations and recoverable pipelines, so a 2am failure is a re-run, not an incident.',
+  },
+];
+
 const skills = [
   { group: 'Agentic & LLMs', items: 'LangGraph, LangChain, Anthropic Claude, LangSmith, ChromaDB, RAG, MCP' },
-  { group: 'ML & Forecasting', items: 'LightGBM, Prophet, PyTorch, TensorFlow, MLflow' },
-  { group: 'Data & Analytics', items: 'Snowflake, dbt, Airflow, Databricks, Spark, Delta Lake, Medallion, BigQuery' },
+  { group: 'ML & Forecasting', items: 'scikit-learn, XGBoost, LightGBM, Prophet, PyTorch, Hyperparameter Optimization, MLflow' },
+  { group: 'Data & Analytics', items: 'Snowflake, dbt, Airflow, Databricks, Spark, Delta Lake, Medallion' },
   { group: 'Full Stack', items: 'Python, TypeScript, React, FastAPI, Node.js, Tailwind, Playwright' },
-  { group: 'Infrastructure', items: 'AWS, GCP, Docker, CI/CD, Cloud Run, PostgreSQL, Redis, MongoDB' },
-  { group: 'Leadership', items: 'SOW delivery, Solutions architecture, RFP/proposals, Technical hiring, Team management' },
+  { group: 'Infrastructure', items: 'AWS, GCP, Docker, Cloud Run, NGINX, Jenkins, GitHub Actions, PostgreSQL, Redis' },
+  { group: 'Consulting & Delivery', items: 'SOW & engagement delivery, Solution architecture, Proposals & RFPs, Technical hiring, Team building & mentoring' },
 ];
 ---
 
@@ -48,7 +75,7 @@ const skills = [
   <section class="py-8">
     <span class="block h-[3px] w-11 bg-accent"></span>
     <h1 class="mt-4 font-serif text-4xl font-bold tracking-tight">About</h1>
-    <div class="post-body mt-5 max-w-[60ch]">
+    <div class="post-body mt-5">
       <p>
         For 10+ years I've built data and AI platforms - the kind that work at scale and stay
         trustworthy under operator and auditor pressure. I architect the systems, run the teams
@@ -64,6 +91,26 @@ const skills = [
   </section>
 
   <section class="border-t border-border py-8">
+    <p class="mb-3 font-mono text-xs uppercase tracking-[0.14em] text-muted">How I design systems</p>
+    <p class="mb-6 text-base leading-relaxed text-muted">
+      I model systems around the business domain, not the database schema. Boundaries land where the
+      domain has real seams, so each part owns one capability, changes for one reason, and meets the
+      rest through explicit contracts instead of reaching across them. A thin core orchestrates; the
+      focused modules do the work.
+    </p>
+    <div class="grid gap-4 sm:grid-cols-2">
+      {
+        principles.map((p) => (
+          <div class="rounded-xl border border-border bg-card p-5">
+            <h3 class="font-serif text-base font-semibold">{p.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{p.desc}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="border-t border-border py-8">
     <p class="mb-6 font-mono text-xs uppercase tracking-[0.14em] text-muted">Experience</p>
     <div class="flex flex-col gap-6">
       {
@@ -75,7 +122,7 @@ const skills = [
               </h3>
               <span class="font-mono text-xs text-muted">{e.when}</span>
             </div>
-            <p class="mt-1 max-w-[68ch] text-sm leading-relaxed text-muted">{e.note}</p>
+            <p class="mt-1 text-sm leading-relaxed text-muted">{e.note}</p>
           </div>
         ))
       }
